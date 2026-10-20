@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none">
+  <rect width="48" height="48" rx="10" fill="#0f172a"/>
+  <!-- Construction Tower / Geometric PVS Logo -->
+  <path d="M12 38V10H24C28.4183 10 32 13.5817 32 18C32 22.4183 28.4183 26 24 26H18V38H12Z" fill="#f59e0b"/>
+  <circle cx="24" cy="18" r="3" fill="#0f172a"/>
+  <path d="M28 26L38 38H31L23 28L28 26Z" fill="#ea580c"/>
+  <rect x="8" y="40" width="32" height="3" rx="1.5" fill="#f59e0b"/>
+</svg>
