@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Menu, X, HardHat, PhoneCall, ArrowRight } from 'lucide-react';
+import { Menu, X, HardHat, ArrowRight } from 'lucide-react';
 import { companyInfo } from '../data/companyInfo';
 
 /**
@@ -49,6 +49,18 @@ export default function Header({ onOpenQuoteModal }) {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // Prevent background scrolling when mobile menu is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [mobileMenuOpen]);
+
   // Smooth scroll handler that closes the mobile menu
   function handleNavClick(e, href) {
     e.preventDefault();
@@ -73,10 +85,10 @@ export default function Header({ onOpenQuoteModal }) {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
-        isScrolled
-          ? 'bg-slate-950/95 backdrop-blur-md shadow-lg shadow-black/10 py-3.5 border-b border-slate-800/80'
-          : 'bg-gradient-to-b from-slate-950/90 via-slate-950/70 to-transparent py-5'
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        isScrolled || mobileMenuOpen
+          ? 'bg-slate-950 shadow-xl shadow-black/30 py-3.5 border-b border-slate-800'
+          : 'bg-gradient-to-b from-slate-950 via-slate-950/80 to-transparent py-4 sm:py-5'
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -118,39 +130,8 @@ export default function Header({ onOpenQuoteModal }) {
             ))}
           </nav>
 
-          {/* Desktop Right CTAs */}
-          <div className="hidden lg:flex items-center gap-4">
-            {/* Quick Phone Call Link */}
-            <a
-              href={`tel:${companyInfo.contact.phoneClean}`}
-              className="flex items-center gap-2 text-xs font-semibold text-slate-300 hover:text-amber-400 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 rounded-lg p-1"
-            >
-              <div className="w-7 h-7 rounded-full bg-slate-800 flex items-center justify-center text-amber-500">
-                <PhoneCall className="w-3.5 h-3.5" />
-              </div>
-              <span className="hidden xl:inline">{companyInfo.contact.phone}</span>
-            </a>
-
-            {/* Primary Action Button */}
-            <button
-              type="button"
-              onClick={onOpenQuoteModal}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-amber-500 text-slate-950 font-bold text-xs uppercase tracking-wider hover:bg-amber-400 active:scale-95 transition-all duration-200 shadow-md shadow-amber-500/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
-            >
-              <span>Get a Free Quote</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </button>
-          </div>
-
           {/* Mobile Menu Hamburger Toggle */}
-          <div className="flex items-center gap-2 lg:hidden">
-            <button
-              type="button"
-              onClick={onOpenQuoteModal}
-              className="px-3 py-1.5 rounded-full bg-amber-500 text-slate-950 font-bold text-xs hover:bg-amber-400 transition-colors"
-            >
-              Quote
-            </button>
+          <div className="flex items-center lg:hidden">
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -166,41 +147,31 @@ export default function Header({ onOpenQuoteModal }) {
 
       {/* Mobile Drawer Navigation Menu */}
       {mobileMenuOpen && (
-        <div className="lg:hidden fixed inset-x-0 top-[68px] sm:top-[74px] bg-slate-950/98 border-b border-slate-800 shadow-2xl p-6 backdrop-blur-xl animate-in slide-in-from-top-4 duration-200">
-          <nav className="flex flex-col space-y-1.5" aria-label="Mobile Navigation">
-            {companyInfo.navLinks.map((link) => (
-              <a
-                key={link.name}
-                href={link.href}
-                onClick={(e) => handleNavClick(e, link.href)}
-                className="px-4 py-3 rounded-xl text-base font-semibold text-slate-200 hover:text-amber-400 hover:bg-slate-900 transition-colors flex items-center justify-between"
-              >
-                <span>{link.name}</span>
-                <ArrowRight className="w-4 h-4 text-slate-500" />
-              </a>
-            ))}
-          </nav>
+        <>
+          {/* Dark Backdrop Overlay */}
+          <div
+            onClick={() => setMobileMenuOpen(false)}
+            aria-hidden="true"
+            className="lg:hidden fixed inset-0 top-[60px] bg-slate-950/80 backdrop-blur-md z-40 transition-opacity"
+          />
 
-          {/* Mobile Drawer Bottom Info */}
-          <div className="mt-6 pt-6 border-t border-slate-800 space-y-3">
-            <div className="text-xs text-slate-400">
-              <p className="font-semibold text-slate-300">Direct Inquiries:</p>
-              <p>{companyInfo.contact.phone}</p>
-              <p>{companyInfo.contact.email}</p>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => {
-                setMobileMenuOpen(false);
-                onOpenQuoteModal();
-              }}
-              className="w-full py-3 px-4 rounded-xl bg-amber-500 text-slate-950 font-bold text-sm uppercase tracking-wider hover:bg-amber-400 text-center transition-colors shadow-md shadow-amber-500/20"
-            >
-              Get a Free Quote Now
-            </button>
+          {/* Solid Opaque Drawer Container */}
+          <div className="lg:hidden fixed inset-x-0 top-[60px] sm:top-[68px] bg-slate-950 border-b border-slate-800 shadow-2xl p-6 z-50 max-h-[calc(100vh-68px)] overflow-y-auto">
+            <nav className="flex flex-col space-y-2" aria-label="Mobile Navigation">
+              {companyInfo.navLinks.map((link) => (
+                <a
+                  key={link.name}
+                  href={link.href}
+                  onClick={(e) => handleNavClick(e, link.href)}
+                  className="px-4 py-3 rounded-xl text-base font-semibold text-slate-100 hover:text-amber-400 hover:bg-slate-900 active:bg-slate-800 transition-colors flex items-center justify-between border border-transparent hover:border-slate-800"
+                >
+                  <span>{link.name}</span>
+                  <ArrowRight className="w-4 h-4 text-slate-500" />
+                </a>
+              ))}
+            </nav>
           </div>
-        </div>
+        </>
       )}
     </header>
   );
